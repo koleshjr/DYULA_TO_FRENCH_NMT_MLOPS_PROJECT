@@ -1,6 +1,5 @@
 import argparse
 import re
-
 from kserve import (
     InferOutput,
     InferRequest,
@@ -11,17 +10,11 @@ from kserve import (
 )
 
 from kserve.utils.utils import generate_uuid
-from transformers import pipeline, AutoTokenizer, T5Tokenizer, T5ForConditionalGeneration
+from transformers import pipeline,  T5Tokenizer
 MODEL_DIR = "/app/saved_model"
 CHARS_TO_REMOVE_REGEX = '[!"&\(\),-./:;=?+.\n\[\]]'
 PREFIX = "Translate the following sentence from Dyula to French: "  # Model's inference command
-MODEL_KWARGS = {
-    "do_sample": True,
-    "max_new_tokens": 40,
-    "top_k": 30,
-    "top_p": 0.95,
-    "temperature": 1.0,
-}
+
 def clean_translation(translation):
     CHARS_TO_REMOVE_REGEX = '[!"&\(\),-./:;=?+.\n\[\]]'
     return re.sub(CHARS_TO_REMOVE_REGEX, " ", translation.lower()).strip()
@@ -38,7 +31,7 @@ class MyModel(Model):
     
     def load(self):
         """Reconstitue Model From Disk"""
-        repository_id = "saved_model/"
+        repository_id = "saved_model/Koleshjrflan-t5-base-finetuned-translation-v5"
         self.tokenizer = T5Tokenizer.from_pretrained(repository_id)
         self.pipe_ft = pipeline("translation", model = repository_id, max_length=self.tokenizer.model_max_length, device_map="auto")
         self.ready = True   
