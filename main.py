@@ -31,7 +31,7 @@ class MyModel(Model):
     
     def load(self):
         """Reconstitue Model From Disk"""
-        repository_id = "saved_model/Koleshjrflan-t5-base-finetuned-translation-v5"
+        repository_id = f"{MODEL_DIR}/Koleshjrflan-t5-base-finetuned-translation-v5"
         self.tokenizer = T5Tokenizer.from_pretrained(repository_id)
         self.pipe_ft = pipeline("translation", model = repository_id, max_length=self.tokenizer.model_max_length, device_map="auto")
         self.ready = True   
