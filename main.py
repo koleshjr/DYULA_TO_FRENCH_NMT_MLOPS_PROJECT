@@ -1,70 +1,111 @@
-import argparse
+import os
 import re
-from kserve import (
-    InferOutput,
-    InferRequest,
-    InferResponse,
-    Model,
-    ModelServer,
-    model_server
-)
+import argparse
+from typing import Dict, List
 
+import torch
+from joeynmt.prediction import predict, prepare
+from joeynmt.config import load_config, parse_global_args
 from kserve.utils.utils import generate_uuid
-from transformers import pipeline,  T5Tokenizer
-MODEL_DIR = "/app/saved_model"
-CHARS_TO_REMOVE_REGEX = '[!"&\(\),-./:;=?+.\n\[\]]'
-PREFIX = "Translate the following sentence from Dyula to French: "  # Model's inference command
+from kserve import Model, ModelServer, model_server, InferRequest, InferOutput, InferResponse
 
-def clean_translation(translation):
-    CHARS_TO_REMOVE_REGEX = '[!"&\(\),-./:;=?+.\n\[\]]'
-    return re.sub(CHARS_TO_REMOVE_REGEX, " ", translation.lower()).strip()
+
+MODEL_CONFIG_PATH = "/app/saved_model/config.yaml"
+CHARS_TO_REMOVE_REGEX = '[!"&\(\),-./:;=?+.\n\[\]]'
+
+
+def clean_text(text: str) -> str:
+  text = re.sub(CHARS_TO_REMOVE_REGEX, '', text)
+  text = text.lower()
+  return text.strip()
+
+
+class JoeyNMTModelDyuFr:
+    """
+    JoeyNMTModelDyuFr which load JoeyNMT model for inference.
+
+    :param config_path: Path to YAML config file
+    :param n_best: return this many hypotheses, <= beam (currently only 1)
+    """
+    def __init__(self, config_path: str, n_best: int = 1) -> None:
+        seed = 42
+        torch.manual_seed(seed)
+        cfg = load_config(config_path)
+        args = parse_global_args(cfg, rank=0, mode="translate")
+        self.args = args._replace(test=args.test._replace(n_best=n_best))
+        # build model
+        self.model, _, _, self.test_data = prepare(self.args, rank=0, mode="translate")
+
+    def _translate_data(self) -> List[str]:
+        _, _, hypotheses, _, _, _ = predict(
+            model=self.model,
+            data=self.test_data,
+            compute_loss=False,
+            device=self.args.device,
+            rank=0,
+            n_gpu=self.args.n_gpu,
+            normalization="none",
+            num_workers=self.args.num_workers,
+            args=self.args.test,
+            autocast=self.args.autocast,
+        )
+        return hypotheses
+
+    def translate(self, sentence) -> List[str]:
+        """
+        Translate the given sentence.
+
+        :param sentence: Sentence to be translated
+        :return:
+        - translations: (list of str) possible translations of the sentence.
+        """
+        self.test_data.set_item(sentence.strip())
+        translations = self._translate_data()
+        assert len(translations) == len(self.test_data) * self.args.test.n_best
+        self.test_data.reset_cache()
+        return translations
+
 
 class MyModel(Model):
-    """Kserve Inference Implementation of Model"""
+
     def __init__(self, name: str):
         super().__init__(name)
         self.name = name
-        self.tokenizer = None
-        self.pipe_ft = None
-        self.ready = False 
+        self.model = None
+        self.ready = False
         self.load()
-    
+
     def load(self):
-        """Reconstitue Model From Disk"""
-        repository_id = f"{MODEL_DIR}/Koleshjrflan-t5-base-finetuned-translation-v5"
-        self.tokenizer = T5Tokenizer.from_pretrained(repository_id)
-        self.pipe_ft = pipeline("translation", model = repository_id, max_length=self.tokenizer.model_max_length, device_map="auto")
-        self.ready = True   
+        # Instantiate model
+        self.model = JoeyNMTModelDyuFr(config_path=MODEL_CONFIG_PATH, n_best=1)
+        self.ready = True
 
-    def preprocess(self, payload: InferRequest, *args, **kwargs) -> str:
-        """Preprocess inference request."""
-        # Clean input sentence and add prefix
-        raw_data = payload.inputs[0].data[0]
-        prepared_data = f"{PREFIX}{clean_translation(raw_data)}"
-        return prepared_data
+    def preprocess(self, payload: InferRequest, *args, **kwargs) -> List[str]:
+        # Get data from payload
+        infer_inputs: List[str] = payload.inputs[0].data
+        print(f"** infer_input ({type(infer_inputs)}): {infer_inputs}")
 
-    def predict(self, data: str, *args, **kwargs) -> InferResponse:
-        out = self.pipe_ft(data)
-        translation = out[0]['translation_text']
+        cleaned_texts: List[str] = [clean_text(i) for i in infer_inputs]
+        print(f"** cleaned_text ({type(cleaned_texts)}): {cleaned_texts}")
+        return cleaned_texts
+
+    def predict(self, data: List[str], *args, **kwargs) -> InferResponse:
         response_id = generate_uuid()
-        infer_output = InferOutput(
-            name="output-0", shape=[1], datatype="STR", data=[translation]
-        )
-        infer_response = InferResponse(
-            model_name=self.name, infer_outputs=[infer_output], response_id=response_id
-        )
+        results: List[str] = [self.model.translate(sentence=s)[0] for s in data]
+        print(f"** result ({type(results)}): {results}")
+
+        infer_output = InferOutput(name="output-0", shape=[len(results)], datatype="STR", data=results)
+        infer_response = InferResponse(model_name=self.name, infer_outputs=[infer_output], response_id=response_id)
         return infer_response
-    
 
 parser = argparse.ArgumentParser(parents=[model_server.parser])
 parser.add_argument(
-    "--model_name", default="model", help="The name that the model is served under."
+    "--custom_model_name",
+    default="model",
+    help="The name that the model is served under."
 )
 args, _ = parser.parse_known_args()
 
 if __name__ == "__main__":
     model = MyModel(args.model_name)
-    ModelServer().start([model])      
-
-
-
+    ModelServer().start([model])
