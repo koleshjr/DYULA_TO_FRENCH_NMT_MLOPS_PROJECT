@@ -317,8 +317,8 @@ def main():
     # Copy necessary files
     src_files = [
         (Path(model_dir) / "sp.model", Path(lean_model_dir) / "sp.model"),
-        (Path(model_dir) / "vocab.txt", Path(lean_model_dir) / "vocab.txt"),
-        (Path(model_dir) / "config.yaml", Path(lean_model_dir) / "config_local.yaml"),
+        (Path(data_dir) / "vocab.txt", Path(lean_model_dir) / "vocab.txt"),
+        (Path(model_dir) / "config.yaml", Path(lean_model_dir) / "config.yaml"),
         (Path(model_dir) / "best.ckpt", Path(lean_model_dir) / "best.ckpt"),
         # Add other files as necessary
     ]
