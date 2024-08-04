@@ -1,7 +1,7 @@
-import os
+""" Implementation of KServer Predictor"""
 import re
 import argparse
-from typing import Dict, List
+from typing import List
 
 import torch
 from joeynmt.prediction import predict, prepare
@@ -15,9 +15,12 @@ CHARS_TO_REMOVE_REGEX = '[!"&\(\),-./:;=?+.\n\[\]]'
 
 
 def clean_text(text: str) -> str:
-  text = re.sub(CHARS_TO_REMOVE_REGEX, '', text)
-  text = text.lower()
-  return text.strip()
+    """
+    Clean input text by removing special characters and converting
+    to lower case.
+    """
+    text = re.sub(CHARS_TO_REMOVE_REGEX, " ", text.lower())
+    return text.strip()
 
 
 class JoeyNMTModelDyuFr:

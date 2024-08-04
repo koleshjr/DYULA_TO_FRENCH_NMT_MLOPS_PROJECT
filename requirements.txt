@@ -1,4 +1,6 @@
-torch==2.3.1
 joeynmt==2.3.0
 kserve==0.13.0
 huggingface-hub==0.24.0
+datasets
+sacrebleu
+evaluate
