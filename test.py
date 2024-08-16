@@ -57,3 +57,4 @@ if __name__ == "__main__":
         print(model.translate(sentence=example['dyu']))
         print(example['fr'])
         print("-"* 100)
+

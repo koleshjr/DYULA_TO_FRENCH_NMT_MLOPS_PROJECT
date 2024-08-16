@@ -2,7 +2,6 @@
 import re
 import argparse
 from typing import List
-
 import torch
 from joeynmt.prediction import predict, prepare
 from joeynmt.config import load_config, parse_global_args
@@ -11,8 +10,7 @@ from kserve import Model, ModelServer, model_server, InferRequest, InferOutput, 
 
 
 MODEL_CONFIG_PATH = "/app/saved_model/config.yaml"
-CHARS_TO_REMOVE_REGEX = '[!"&\(\),-./:;=?+.\n\[\]]'
-
+CHARS_TO_REMOVE_REGEX = r'[!"&(),./:;=?+\[\]-]'
 
 def clean_text(text: str) -> str:
     """
@@ -70,7 +68,7 @@ class JoeyNMTModelDyuFr:
 
 
 class MyModel(Model):
-
+    """Kserve Predictor"""
     def __init__(self, name: str):
         super().__init__(name)
         self.name = name
