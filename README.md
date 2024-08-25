@@ -11,7 +11,7 @@ model-index:
   results: []
 ---
 
-# koleshjr/dyu-fr-joeynmt : Koleshjr/dyu-fr-joeynmt-316-epochs_2_layers_5heads_128_300_plateau_2000_7_24_21_44
+# koleshjr/dyu-fr-joeynmt
 
 An example of a machine translation model that translates Dyula to French using the [JoeyNMT framework](https://github.com/joeynmt/joeynmt).
 
@@ -41,7 +41,7 @@ from huggingface_hub import snapshot_download
 
 # Download model
 snapshot_download(
-    repo_id="Koleshjr/dyu-fr-joeynmt-316-epochs_2_layers_5heads_128_300_plateau_2000_7_24_21_44",
+    repo_id="Koleshjr/dyu-fr-joeynmt-316-epochs_2_layers_8heads_128_384_plateau_2000_7_95_21_48",
     local_dir="/path/to/save/locally"
 )
 
