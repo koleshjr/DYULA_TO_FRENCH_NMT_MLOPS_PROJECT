@@ -41,7 +41,7 @@ from huggingface_hub import snapshot_download
 
 # Download model
 snapshot_download(
-    repo_id="Koleshjr/dyu-fr-joeynmt-316-epochs_2_layers_8heads_128_384_plateau_2000_7_95_21_48",
+    repo_id="Koleshjr/dyu-fr-joeynmt-316-epochs_2_layers_5heads_128_300_plateau_2000_7_45_20_93",
     local_dir="/path/to/save/locally"
 )
 

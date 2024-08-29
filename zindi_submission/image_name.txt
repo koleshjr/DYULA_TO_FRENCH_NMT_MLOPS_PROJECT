@@ -1,1 +1,1 @@
-058264459447.dkr.ecr.eu-west-1.amazonaws.com/highwind/6debf124-40fb-4e35-8731-bb112e62849c/e2ed2de2-aa61-4633-af48-44ffb6b13cda:latest
+058264459447.dkr.ecr.eu-west-1.amazonaws.com/highwind/6debf124-40fb-4e35-8731-bb112e62849c/24bb5bed-5fb3-4451-bbc2-47379a8e923a:latest
