@@ -1,5 +1,6 @@
+joeynmt==2.3.0
 kserve==0.13.0
-transformers==4.42.3
-sentencepiece==0.2.0
-torch==2.3.1
-accelerate==0.32.1
+huggingface-hub==0.24.0
+datasets
+sacrebleu
+evaluate
