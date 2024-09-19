@@ -1,4 +1,7 @@
 ## Deployment
+0. Download the model from huggingface and save it in a root folder called saved_model- This step has been done for you
+model_path: Koleshjr/dyu-fr-joeynmt-316-epochs_2_layers_5heads_128_300_plateau_2000_7_45_20_93
+
 1. build the container locally and give it a tag
     docker build -t local/highwind-examples/dyu-fr-inference:latest .
 
