@@ -8,7 +8,7 @@ tags:
 - pytorch
 model-index:
 - name: Koleshjr/dyu-fr-joeynmt-316-epochs_2_layers_5heads_128_300_plateau_2000_7_45_20_93
-  results: []
+  results: [0.2347, 0.2363]
 ---
 
 # koleshjr/dyu-fr-joeynmt
