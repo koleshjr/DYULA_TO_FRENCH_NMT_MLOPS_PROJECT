@@ -1,13 +1,13 @@
 ---
 language:
-- en
+- dy
 - fr
 - multilingual
 tags:
 - translation
 - pytorch
 model-index:
-- name: koleshjr/dyu-fr-joeynmt
+- name: Koleshjr/dyu-fr-joeynmt-316-epochs_2_layers_5heads_128_300_plateau_2000_7_45_20_93
   results: []
 ---
 
