@@ -116,3 +116,8 @@ More information needed
 - JoeyNMT 2.3.0
 - Torch 2.3.1+cu121
 
+## RESULTS
+#####  https://zindi.africa/competitions/melio-mlops-competition/leaderboard
+* PUBLIC LB: 0.477428025
+* PRIVATE LB: 0.741463004
+
